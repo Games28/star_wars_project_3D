@@ -162,7 +162,7 @@ struct Demo3D : cmn::Engine3D {
 			s.update(cam_pos);
 		}
 
-		ability.Object_highlight(this, sprites);
+		ability.billboard_select(this, sprites);
 
 
 		return true;
@@ -214,6 +214,7 @@ struct Demo3D : cmn::Engine3D {
 			);
 		}
 
+		ability.Object_highlight(this, sprites);
 		return true;
 	}
 };

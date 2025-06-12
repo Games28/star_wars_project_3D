@@ -4,9 +4,9 @@
 
 struct Abilities
 {
-	Mesh* held_Object = nullptr;
+	Billboard* held_Object = nullptr;
 	float held_dist = 0;
-	void Object_highlight(cmn::Engine3D* ptr,std::vector<Billboard> billboard)
+	void billboard_select(cmn::Engine3D* ptr,std::vector<Billboard> billboard)
 	{
 		float record = -1;
 		held_Object = nullptr;
@@ -19,24 +19,29 @@ struct Abilities
 				if (record < 0)
 				{
 					record = dist;
-					held_Object = &m;
+					held_Object = &b;
 					held_dist = dist;
 				} 
 			}
 		}
 
 
+		
+	}
+
+	void Object_highlight(cmn::Engine3D* ptr, std::vector<Billboard> billboard)
+	{
 		for (auto& b : billboard)
 		{
-			
-		    
+
+			Mesh m;
 			float dist = m.intersectRay(ptr->cam_pos, ptr->cam_dir, b.tri2);
 			std::cout << "dist: " << dist << std::endl;
-			
+
 			if (dist > 0)
 			{
 				std::cout << "id: " << m.id << std::endl;
-				
+
 				//int id = m.id;
 				//for (int i = 1; i < ptr->ScreenWidth() - 1; i++) {
 				//	for (int j = 1; j < ptr->ScreenHeight() - 1; j++) {
