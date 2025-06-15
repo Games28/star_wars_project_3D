@@ -5,6 +5,9 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
+#define OLC_PGEX_ANIMSPR
+#include "olcPGEX_AnimatedSprite.h"
+
 #include "v3d.h"
 
 #include "mat4.h"
@@ -33,6 +36,12 @@ namespace cmn {
 	public:
 		//camera positioning
 		vf3d cam_pos, cam_dir{0, 0, 1};
+		//current and previous cam_pos
+		vf3d previous_cam, current_cam;
+		//unprojected matrix
+		Mat4 invVP;
+		bool invVP_avail = true;
+
 		float cam_fov_deg=90;
 		float cam_yaw = -1.62f;
 		float cam_pitch = 0;

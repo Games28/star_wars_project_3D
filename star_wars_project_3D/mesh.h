@@ -160,23 +160,7 @@ struct Mesh {
 		return record;
 	}
 
-	//billboard intersectray
-	float intersectRay(const vf3d& orig, const vf3d& dir, std::vector<cmn::Triangle> tri) const {
-		if (!rayIntersectAABB(orig, dir, getAABB())) return -1;
-
-		//sort by closest
-		float record = -1;
-		for (const auto& t : tri) {
-			float dist = segIntersectTri(orig, orig + dir, t);
-			if (dist > 0) {
-				if (record < 0 || dist < record) {
-					record = dist;
-				}
-			}
-		}
-
-		return record;
-	}
+	
 
 	static Mesh loadFromOBJ(const fs::path& filename) {
 		Mesh m;

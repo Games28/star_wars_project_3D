@@ -76,11 +76,12 @@ struct Demo3D : cmn::Engine3D {
 
 			//3d sprites
 			Billboard p1{vf3d(+5, +0.8f, -4), 3};
-			texture_atlas.push_back(new olc::Sprite("assets/textures/luigi.png"));
+
+			p1.base_sprite = new olc::Sprite("assets/sprites/trooper_idle.png");
 			sprites.push_back(p1);
 
 			Billboard p2({+5, +0.8f, -7}, 4);
-			texture_atlas.push_back(new olc::Sprite("assets/textures/mario.png"));
+			p2.base_sprite = new olc::Sprite("assets/sprites/trooper_idle.png");
 			sprites.push_back(p2);
 		} catch(const std::exception& e) {
 			std::cout<<e.what()<<'\n';
@@ -91,6 +92,8 @@ struct Demo3D : cmn::Engine3D {
 	}
 	
 	bool user_update(float dt) override {
+
+		previous_cam = cam_pos;
 		//look up, down
 		if(GetKey(olc::Key::UP).bHeld) cam_pitch+=dt;
 		if(GetKey(olc::Key::DOWN).bHeld) cam_pitch-=dt;
@@ -145,6 +148,31 @@ struct Demo3D : cmn::Engine3D {
 			if (GetKey(olc::Key::D).bHeld) cam_pos -= 4.f * dt * lr_dir;
 		}
 
+		current_cam = cam_pos;
+
+		try
+		{
+			invVP = Mat4::inverse(mat_view * mat_proj);
+		}
+		catch (const std::exception& e)
+		{
+			invVP_avail = false;
+		}
+
+		//update world mouse ray
+		if (invVP_avail)
+		{
+			float ndc_x = 1 - 2.f * GetMouseX() / ScreenWidth();
+			float ndc_y = 1 - 2.f * GetMouseY() / ScreenHeight();
+
+			vf3d clip(ndc_x, ndc_y, 1);
+			vf3d world = clip * invVP;
+			world /= world.w;
+
+			
+		}
+
+
 		player.player_jumping(meshes, dt);
 		
 
@@ -175,9 +203,8 @@ struct Demo3D : cmn::Engine3D {
 				m.tris.begin(), m.tris.end());
 		}
 
-		for(const auto& s:sprites) {
-			tris_to_project.push_back(s.tri2[0]);
-			tris_to_project.push_back(s.tri2[1]);
+		for(auto& s:sprites) {
+			s.sprite_update(this,tris_to_project,texture_atlas);
 		}
 
 		if(show_bounds) {

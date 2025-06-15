@@ -54,6 +54,9 @@
     <ClInclude Include="abilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="olcPGEX_AnimatedSprite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

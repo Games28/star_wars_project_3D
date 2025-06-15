@@ -137,6 +137,7 @@
     <ClInclude Include="abilities.h" />
     <ClInclude Include="billboard.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="olcPGEX_AnimatedSprite.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="quat.h" />
