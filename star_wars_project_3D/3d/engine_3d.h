@@ -39,6 +39,8 @@ namespace cmn {
 		//current and previous cam_pos
 		vf3d previous_cam, current_cam;
 		//unprojected matrix
+
+		const cmn::AABB3 scene_bound{ {0,0,0},{10,5,10} };
 		Mat4 invVP;
 		bool invVP_avail = true;
 

@@ -7,12 +7,12 @@ struct Abilities
 	vf3d trans_plane;
 	Billboard* held_Object = nullptr;
 	float held_dist = 0;
-	void billboard_select(cmn::Engine3D* ptr,std::vector<Billboard> billboard)
+	void billboard_select(cmn::Engine3D* ptr,std::vector<Billboard>& billboard)
 	{
 		
 		
 		
-		if (ptr->GetKey(olc::V).bPressed)
+		if (ptr->GetKey(olc::SPACE).bPressed)
 		{
 			float record = -1;
 			held_Object = nullptr;
@@ -38,33 +38,16 @@ struct Abilities
 			
  		}
 
-		if (ptr->GetKey(olc::V).bReleased)
+		if (ptr->GetKey(olc::SPACE).bReleased)
 		{
 			held_Object = nullptr;
 		}
 		
-		if (held_Object)
-		{
-			//project screen ray onto tranlsation plane
-			float prev_ndc_x = 1 - 2 * ptr->previous_cam.x / ptr->ScreenWidth();
-			float prev_ndc_y = 1 - 2 * ptr->previous_cam.y / ptr->ScreenHeight();
-			vf3d prev_clip(prev_ndc_x, prev_ndc_y, 1);
-			vf3d prev_world = prev_clip * ptr->invVP;
-			prev_world /= prev_world.w;
-			vf3d prev_pt = segIntersectPlane(ptr->cam_pos, prev_world, trans_plane, ptr->cam_dir);
-			float curr_ndc_x = 1 - 2 * ptr->current_cam.x / ptr->ScreenWidth();
-			float curr_ndc_y = 1 - 2 * ptr->current_cam.y / ptr->ScreenHeight();
-			vf3d curr_clip(curr_ndc_x, curr_ndc_y, 1);
-			vf3d curr_world = curr_clip * ptr->invVP;
-			curr_world /= curr_world.w;
-			vf3d curr_pt = segIntersectPlane(ptr->cam_pos, curr_world, trans_plane, ptr->cam_dir);
-
-			held_Object->pos += curr_pt - prev_pt;
-		}
+		
 
 	}
 
-	void Object_highlight(cmn::Engine3D* ptr, std::vector<Billboard> billboard)
+	void Object_highlight(cmn::Engine3D* ptr, std::vector<Billboard>& billboard)
 	{
 		for (auto& b : billboard)
 		{

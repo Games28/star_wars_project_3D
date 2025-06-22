@@ -8,6 +8,8 @@ class Player
 public:
 	Player() = default;
 
+
+
 	void player_camera_switch(cmn::vf3d& cam_pos)
 	{
 		if (!player_camera)
@@ -24,7 +26,10 @@ public:
 
 	void player_collision(cmn::Engine3D* pge,float dt, std::vector<Mesh> meshes)
 	{
+		vf3d new_pos = pge->cam_pos;
 		vf3d movement;
+		
+
 		//move forward, backward
 		vf3d fb_dir(std::cosf(pge->cam_yaw), 0, std::sinf(pge->cam_yaw));
 		if (pge->GetKey(olc::Key::W).bHeld) movement += 5.f * dt * fb_dir;
@@ -62,7 +67,9 @@ public:
 
 		}
 
-		player_pos += movement;
+		
+			player_pos += movement;
+		
 
 		//jumping
 		if (pge->GetKey(olc::Key::SHIFT).bPressed)
@@ -75,7 +82,11 @@ public:
 		}
 
 		//player pos is at feet, so offset camera to head
-		pge->cam_pos = player_pos + vf3d(0, player_height, 0);
+		if (pge->scene_bound.contains(movement))
+		{
+			pge->cam_pos = player_pos + vf3d(0, player_height, 0);
+		}
+		
 
 
 	}
@@ -116,13 +127,23 @@ public:
 		}
 	}
 
+	void nagvigator(cmn::Engine3D* ptr,std::vector<Mesh> meshes,vf3d bill_board_pos)
+	{
+		                               
+		
+	}
+
+	void set_player_cam()
+	{
+		player_camera = false;
+	}
 
 	bool player_Cam()
 	{
 		return player_camera;
 	}
 
-private:
+	private:
 	//player physics
 	bool player_camera = false;
 	bool player_on_ground = false;

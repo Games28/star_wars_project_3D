@@ -7,6 +7,8 @@ using cmn::Mat4;
 #include "billboard.h"
 #include "Player.h"
 #include "abilities.h"
+#include "pathfinding.h"
+
 
 constexpr float Pi=3.1415927f;
 
@@ -22,18 +24,26 @@ struct Demo3D : cmn::Engine3D {
 
 	std::vector<olc::Sprite*> texture_atlas;
 
+	
+
 	bool show_bounds=false;
 
-
+	bool seek_active = false;
 	
+	PathFinder path;
 
 	Player player;
 	Abilities ability;
 
 
 	bool user_create() override {
-		cam_pos={0, 0, 3.5};
+		cam_pos={5, 3, 3};
 		light_pos=cam_pos;
+
+		
+		path.Setup();
+
+
 
 		try {
 			{
@@ -44,13 +54,15 @@ struct Demo3D : cmn::Engine3D {
 				a.id = 0;
 				a.updateTriangles();
 				texture_atlas.push_back(new olc::Sprite("./assets/textures/sandtexture.png"));
+				a.fitToBounds(scene_bound);
+				//a.colorNormals();
 
 				meshes.push_back(a);
 			}
 			
 			{
 				Mesh b=Mesh::loadFromOBJ("assets/models/tathouse1.txt");
-				b.translation={0, 0, +5};
+				b.translation={8, 2.5, 7};
 				b.scale={0.25f, 0.25f, 0.25f};
 				b.updateTransforms();
 				b.id=1;
@@ -62,7 +74,7 @@ struct Demo3D : cmn::Engine3D {
 
 			{
 				Mesh c = Mesh::loadFromOBJ("./assets/models/tathouse2.txt");
-				c.translation = { -5, 0, 0 };
+				c.translation = { 5, 2.5, 1 };
 				c.scale = { 0.25f,0.25f,0.25f };
 				c.updateTransforms();
 				c.id=2;
@@ -75,18 +87,24 @@ struct Demo3D : cmn::Engine3D {
 		
 
 			//3d sprites
-			Billboard p1{vf3d(+5, +0.8f, -4), 3};
+			Billboard p1{vf3d(+5, 3, 4), 3};
 
-			p1.base_sprite = new olc::Sprite("assets/sprites/trooper_idle.png");
+			texture_atlas.push_back(new olc::Sprite("assets/sprites/trooper_idle.png"));
 			sprites.push_back(p1);
 
-			Billboard p2({+5, +0.8f, -7}, 4);
-			p2.base_sprite = new olc::Sprite("assets/sprites/trooper_idle.png");
-			sprites.push_back(p2);
+			Billboard p2({+5, 3, 7}, 4);
+			//texture_atlas.push_back(new olc::Sprite("assets/sprites/trooper_idle.png"));
+			//sprites.push_back(p2);
 		} catch(const std::exception& e) {
 			std::cout<<e.what()<<'\n';
 			return false;
 		}
+
+		for (int i = 1; i < meshes.size(); i++)
+		{
+			path.add_Obstacle(meshes[i].translation);
+		}
+
 
 		return true;
 	}
@@ -111,44 +129,56 @@ struct Demo3D : cmn::Engine3D {
 			std::sinf(cam_pitch),
 			std::sinf(cam_yaw)*std::cosf(cam_pitch)
 		);
-
+		
 		
 
 		//turn off and on player camera physics
 		if (GetKey(olc::Key::Z).bPressed)
 		{
 			//test
+			//
 			player.player_camera_switch(cam_pos);
-
 			
 		}
 
-		
+		if (GetKey(olc::Key::X).bPressed)
+		{
+			player.set_player_cam();
+		}
+
+		vf3d new_cam_pos = cam_pos;
 		//player camera physics
 		if (player.player_Cam())
 		{
-			player.player_collision(this, dt, meshes);
+			
+			player.player_collision(this, dt ,meshes);
 			
 
 		}
 		else
 		{
+
 			//move up, down
-			if (GetKey(olc::Key::SPACE).bHeld) cam_pos.y += 4.f * dt;
-			if (GetKey(olc::Key::SHIFT).bHeld) cam_pos.y -= 4.f * dt;
+			if (GetKey(olc::Key::SPACE).bHeld) new_cam_pos.y += 4.f * dt;
+			if (GetKey(olc::Key::SHIFT).bHeld) new_cam_pos.y -= 4.f * dt;
 
 
 			vf3d fb_dir(std::cosf(cam_yaw), 0, std::sinf(cam_yaw));
-			if (GetKey(olc::Key::W).bHeld) cam_pos += 5.f * dt * fb_dir;
-			if (GetKey(olc::Key::S).bHeld) cam_pos -= 3.f * dt * fb_dir;
+			if (GetKey(olc::Key::W).bHeld) new_cam_pos += 5.f * dt * fb_dir;
+			if (GetKey(olc::Key::S).bHeld) new_cam_pos -= 3.f * dt * fb_dir;
 
 			//move left, right
 			vf3d lr_dir(fb_dir.z, 0, -fb_dir.x);
-			if (GetKey(olc::Key::A).bHeld) cam_pos += 4.f * dt * lr_dir;
-			if (GetKey(olc::Key::D).bHeld) cam_pos -= 4.f * dt * lr_dir;
+			if (GetKey(olc::Key::A).bHeld) new_cam_pos += 4.f * dt * lr_dir;
+			if (GetKey(olc::Key::D).bHeld) new_cam_pos -= 4.f * dt * lr_dir;
+			if (scene_bound.contains(new_cam_pos))
+			{
+				cam_pos = new_cam_pos;
+				current_cam = cam_pos;
+			}
 		}
 
-		current_cam = cam_pos;
+		
 
 		try
 		{
@@ -185,8 +215,48 @@ struct Demo3D : cmn::Engine3D {
 
 		if(GetKey(olc::Key::B).bPressed) show_bounds^=true;
 
+		if (GetKey(olc::Key::M).bPressed) seek_active = !seek_active;
+
+
+		
+
+		//pathfinder test
+		for (auto& s : sprites)
+		{
+			path.update(this, s.pos);
+		}
+
+		if (GetKey(olc::Key::P).bPressed) path.pathfinding_active = !path.pathfinding_active;
+		if (GetKey(olc::Key::O).bPressed) path.following_path = !path.following_path;
+
+		if (path.pathfinding_active)
+		{
+			path.solve_star();
+			path.setup_path();
+			
+		}
+
+		if (path.following_path)
+		{
+			path.path_following(sprites,dt);
+
+		}
+		
+
+		//player.nagvigator(this, meshes, sprites[0].pos);
+		//if (seek_active)
+		//{
+		//	for (auto& s : sprites)
+		//	{
+		//		s.seek(cam_pos);
+		//		s.force_update(dt);
+		//	}
+		//
+		//}
+
 		//update sprite directions and triangles
 		for(auto& s:sprites) {
+			
 			s.update(cam_pos);
 		}
 
@@ -204,7 +274,8 @@ struct Demo3D : cmn::Engine3D {
 		}
 
 		for(auto& s:sprites) {
-			s.sprite_update(this,tris_to_project,texture_atlas);
+			tris_to_project.push_back(s.tris[0]);
+			tris_to_project.push_back(s.tris[1]);
 		}
 
 		if(show_bounds) {
@@ -242,7 +313,15 @@ struct Demo3D : cmn::Engine3D {
 		}
 
 		ability.Object_highlight(this, sprites);
+
+
+		path.render_node_map(this);
+
 		return true;
+
+
+
+
 	}
 };
 

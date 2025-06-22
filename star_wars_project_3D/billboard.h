@@ -5,8 +5,20 @@
 struct Billboard {
     vf3d pos;
     int id;
+    vf3d pos_offset = { 0,0,0 };
     float w = 1, h = 1;
     cmn::Triangle tris[2];
+
+
+    //test steering behavoirs
+  // seeking player
+    float mag = 0;
+    vf3d acceleration, velocity;
+    float radius = 2;
+    float maxspeed = 5;
+    float maxforce = 0.4f;
+
+   
 
     olc::Sprite* base_sprite = nullptr;
     olc::Sprite* seleted_sprite = nullptr;
@@ -29,10 +41,14 @@ struct Billboard {
     }
 
     void update(vf3d cam_pos) {
+
+    
         vf3d norm = (pos - cam_pos).norm();
         vf3d up(0, 1, 0);
         vf3d rgt = norm.cross(up).norm();
         up = rgt.cross(norm);
+
+      
 
         vf3d tl = pos + w / 2 * rgt + h / 2 * up;
         vf3d tr = pos + w / 2 * rgt - h / 2 * up;
@@ -50,27 +66,56 @@ struct Billboard {
         tris[1] = { tl, bl, br, tl_t, bl_t, br_t }; tris[1].id = id;
     }
 
-    void sprite_update(cmn::Engine3D* ptr,std::vector<cmn::Triangle>& tries_to_project, std::vector<olc::Sprite*>& texture_atlas)
+
+    void seek(vf3d cam_pos)
     {
-        texture_atlas.push_back(base_sprite);
+        vf3d desired = cam_pos - pos;
+
+        mag = desired.mag();
+
+        std::cout << "mag: " << mag << std::endl;
+        std::cout << "velocity.x: " << velocity.x 
+            << "velocity.y: " << velocity.y 
+            << "velocity.z: " << velocity.z << std::endl;
 
 
+       
+      // if (mag < 2.0f)
+      // {
+      //     desired = desired.norm();
+      //     desired *= (maxforce * 0.50f);
+      // }
+      // else
+       {
+           desired = desired.norm();
+           desired *= maxforce;
+       }
 
-        tries_to_project.push_back(tris[0]);
-        tries_to_project.push_back(tris[1]);
+        
+           
+        
+
+        vf3d steer = desired - velocity;
+        
+        applyForce(steer);
+        
     }
 
-    olc::Sprite* change_sprite()
+    void applyForce(vf3d force)
     {
-
+        acceleration += force;
     }
 
-    void render(cmn::Engine3D* ptr)
+    void force_update(float dt)
     {
+        if (mag > 1.0f)
+        {
+            velocity += acceleration * dt;
+            pos += velocity * dt;
 
+            acceleration = { 0,0,0 };
+        }
     }
-
-   
-
+  
 };
 #endif
