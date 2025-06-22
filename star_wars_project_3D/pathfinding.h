@@ -241,28 +241,7 @@ struct PathFinder
 		}
 
 
-		//if (!path_to_follow.empty()) {
-		//
-		//	if (counter < 0)
-		//	{
-		//		counter = 0;
-		//	}
-		//
-		//	while (delay_counter < delay_limit)
-		//	{
-		//		delay_counter += 1 * dt;
-		//	}
-		//
-		//	for (auto& b : billboards)
-		//	{
-		//		b.pos.x = path_to_follow[counter].x;
-		//		b.pos.z = path_to_follow[counter].z;
-		//	}
-		//
-		//
-		//	counter--;
-		//	delay_counter = 0;
-		//}
+	
 		
 	}
 
