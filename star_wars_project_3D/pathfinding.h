@@ -13,6 +13,8 @@ struct  sNode
 
 	std::vector<sNode*> vecNeighbours;
 	sNode* parent;
+
+
 };
 
 struct PathFinder
@@ -24,17 +26,40 @@ struct PathFinder
 	sNode* nodeStart = nullptr;
 	sNode* nodeEnd = nullptr;
 
+	//new
+	int speed = 100;
+	int targetindex;
+
+	/////////////////////////
+
+	//old solution/////
 	int startpoint = 0;
 
 	int counter = 0;
 
+	
+
 	float delay_limit = 10000.0f;
 
 	float delay_counter = 0.0f;
+	/// <summary>
+	/// /////////////////////////////
+	/// </summary>
 
 	bool pathfinding_active = false;
 
 	bool following_path = false;
+	
+	vf3d movetowards(vf3d currentpos, vf3d desiredpos, float speed, float dt)
+	{
+
+		vf3d distance = desiredpos - currentpos;
+		float length = sqrtf(distance.x * distance.x + distance.z * distance.z);
+
+		
+
+		return currentpos + distance.norm() * speed * dt;
+	}
 
 	std::vector<vf3d> path_to_follow;
 
@@ -193,29 +218,51 @@ struct PathFinder
 
 	void path_following(std::vector<Billboard>& billboards, float dt)
 	{
+		vf3d currentwaypoint = path_to_follow[path_to_follow.size() - 1];
+		targetindex = path_to_follow.size() - 2;
 
-		if (!path_to_follow.empty()) {
-
-			if (counter < 0)
+		while (true)
+		{
+			if (billboards[0].pos.x >= currentwaypoint.x &&
+				billboards[0].pos.z >= currentwaypoint.z)
 			{
-				counter = 0;
+				targetindex--;
+				if (targetindex < 0)
+				{
+					break;
+				}
+				currentwaypoint = path_to_follow[targetindex];
 			}
+			
+			vf3d temp = movetowards(billboards[0].pos, currentwaypoint, speed, dt);
+			billboards[0].pos.x = temp.x;
+			billboards[0].pos.z = temp.z;
 
-			while (delay_counter < delay_limit)
-			{
-				delay_counter += 1 * dt;
-			}
-
-			for (auto& b : billboards)
-			{
-				b.pos.x = path_to_follow[counter].x;
-				b.pos.z = path_to_follow[counter].z;
-			}
-
-
-			counter--;
-			delay_counter = 0;
 		}
+
+
+		//if (!path_to_follow.empty()) {
+		//
+		//	if (counter < 0)
+		//	{
+		//		counter = 0;
+		//	}
+		//
+		//	while (delay_counter < delay_limit)
+		//	{
+		//		delay_counter += 1 * dt;
+		//	}
+		//
+		//	for (auto& b : billboards)
+		//	{
+		//		b.pos.x = path_to_follow[counter].x;
+		//		b.pos.z = path_to_follow[counter].z;
+		//	}
+		//
+		//
+		//	counter--;
+		//	delay_counter = 0;
+		//}
 		
 	}
 

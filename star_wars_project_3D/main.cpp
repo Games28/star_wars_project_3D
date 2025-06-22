@@ -10,6 +10,7 @@ using cmn::Mat4;
 #include "pathfinding.h"
 
 
+
 constexpr float Pi=3.1415927f;
 
 struct Demo3D : cmn::Engine3D {
@@ -53,11 +54,11 @@ struct Demo3D : cmn::Engine3D {
 				a.updateTransforms();
 				a.id = 0;
 				a.updateTriangles();
-				texture_atlas.push_back(new olc::Sprite("./assets/textures/sandtexture.png"));
-				a.fitToBounds(scene_bound);
+				//texture_atlas.push_back(new olc::Sprite("./assets/textures/sandtexture.png"));
+				//a.fitToBounds(scene_bound);
 				//a.colorNormals();
 
-				meshes.push_back(a);
+				//meshes.push_back(a);
 			}
 			
 			{
@@ -67,9 +68,9 @@ struct Demo3D : cmn::Engine3D {
 				b.updateTransforms();
 				b.id=1;
 				b.updateTriangles();
-				texture_atlas.push_back(new olc::Sprite("assets/textures/Tbuilding.png"));
+				//texture_atlas.push_back(new olc::Sprite("assets/textures/Tbuilding.png"));
 
-				meshes.push_back(b);
+				//meshes.push_back(b);
 			}
 
 			{
@@ -79,15 +80,15 @@ struct Demo3D : cmn::Engine3D {
 				c.updateTransforms();
 				c.id=2;
 				c.updateTriangles();
-				texture_atlas.push_back(new olc::Sprite("./assets/textures/Tbuilding.png"));
+				//texture_atlas.push_back(new olc::Sprite("./assets/textures/Tbuilding.png"));
 
-				meshes.push_back(c);
+				//meshes.push_back(c);
 			}
 
 		
 
 			//3d sprites
-			Billboard p1{vf3d(+5, 3, 4), 3};
+			Billboard p1{vf3d(+5, 3, 4), 0};
 
 			texture_atlas.push_back(new olc::Sprite("assets/sprites/trooper_idle.png"));
 			sprites.push_back(p1);
