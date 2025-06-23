@@ -54,7 +54,7 @@ struct Demo3D : cmn::Engine3D {
 				a.updateTransforms();
 				a.id = 0;
 				a.updateTriangles();
-				//texture_atlas.push_back(new olc::Sprite("./assets/textures/sandtexture.png"));
+			   // texture_atlas.push_back(new olc::Sprite("./assets/textures/sandtexture.png"));
 				//a.fitToBounds(scene_bound);
 				//a.colorNormals();
 
@@ -75,7 +75,7 @@ struct Demo3D : cmn::Engine3D {
 
 			{
 				Mesh c = Mesh::loadFromOBJ("./assets/models/tathouse2.txt");
-				c.translation = { 5, 2.5, 1 };
+				c.translation = { 5, 2.5, 0 };
 				c.scale = { 0.25f,0.25f,0.25f };
 				c.updateTransforms();
 				c.id=2;
@@ -88,7 +88,7 @@ struct Demo3D : cmn::Engine3D {
 		
 
 			//3d sprites
-			Billboard p1{vf3d(+5, 3, 4), 0};
+			Billboard p1{vf3d(8, 3, 8), 0};
 
 			texture_atlas.push_back(new olc::Sprite("assets/sprites/trooper_idle.png"));
 			sprites.push_back(p1);

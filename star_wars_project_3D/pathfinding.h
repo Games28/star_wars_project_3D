@@ -27,9 +27,9 @@ struct PathFinder
 	sNode* nodeEnd = nullptr;
 
 	//new
-	int speed = 100;
+	int speed = 5;
 	int targetindex;
-
+	int decreaseindex = 0;
 	/////////////////////////
 
 	//old solution/////
@@ -218,28 +218,36 @@ struct PathFinder
 
 	void path_following(std::vector<Billboard>& billboards, float dt)
 	{
-		vf3d currentwaypoint = path_to_follow[path_to_follow.size() - 1];
-		targetindex = path_to_follow.size() - 2;
-
-		while (true)
+		if (!path_to_follow.empty())
 		{
-			if (billboards[0].pos.x >= currentwaypoint.x &&
-				billboards[0].pos.z >= currentwaypoint.z)
+			vf3d currentwaypoint = path_to_follow[path_to_follow.size() - 1];
+			targetindex = (path_to_follow.size() - 2) - decreaseindex;
+			vf3d diff = currentwaypoint - billboards[0].pos;
+			float dist = sqrtf(diff.x * diff.x + diff.z * diff.z);
+			
 			{
-				targetindex--;
 				if (targetindex < 0)
 				{
-					break;
+					targetindex = 0;
 				}
-				currentwaypoint = path_to_follow[targetindex];
+				if(dist < 0.1f)
+				{
+					decreaseindex++;
+					if (targetindex > 0)
+					{
+						decreaseindex = 0;
+					}
+
+					currentwaypoint = path_to_follow[targetindex];
+				}
+
+				vf3d temp = movetowards(billboards[0].pos, currentwaypoint, speed, dt);
+				billboards[0].pos.x = temp.x;
+				billboards[0].pos.z = temp.z;
+
 			}
 			
-			vf3d temp = movetowards(billboards[0].pos, currentwaypoint, speed, dt);
-			billboards[0].pos.x = temp.x;
-			billboards[0].pos.z = temp.z;
-
 		}
-
 
 	
 		
